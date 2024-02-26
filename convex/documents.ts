@@ -4,7 +4,7 @@ import { mutation, query } from "./_generated/server"
 import { Doc, Id } from "./_generated/dataModel"
 
 export const archive = mutation({
-    args: {id: v.id("documents") },
+    args: { id: v.id("documents") },
     handler: async (ctx, args) => {
         const identity = await ctx.auth.getUserIdentity();
         if (!identity) {
@@ -95,7 +95,7 @@ export const create = mutation({
         const userId = identity.subject;
 
         const document = await ctx.db.insert("documents", {
-            title:args.title,
+            title: args.title,
             parentDocument: args.parentDocument,
             userId,
             isArchived: false,
@@ -127,7 +127,7 @@ export const getTrash = query({
 });
 
 export const restore = mutation({
-    args: {id: v.id("documents") },
+    args: { id: v.id("documents") },
     handler: async (ctx, args) => {
         const identity = await ctx.auth.getUserIdentity();
 
@@ -143,7 +143,7 @@ export const restore = mutation({
             throw new Error("Not found");
         }
 
-        if  (existingDocument.userId !== userId) {
+        if (existingDocument.userId !== userId) {
             throw new Error("Unauthorized");
         }
 
@@ -184,8 +184,8 @@ export const restore = mutation({
 });
 
 export const remove = mutation({
-    args: { id: v.id("documents")},
-    handler: async (ctx,args) => {
+    args: { id: v.id("documents") },
+    handler: async (ctx, args) => {
         const identity = await ctx.auth.getUserIdentity();
 
         if (!identity) {
@@ -194,7 +194,7 @@ export const remove = mutation({
 
         const userId = identity.subject;
 
-        const existingDocument = await  ctx.db.get(args.id);
+        const existingDocument = await ctx.db.get(args.id);
 
         if (!existingDocument) {
             throw new Error("Not found");
@@ -253,7 +253,7 @@ export const getById = query({
 
         const userId = identity.subject;
 
-        if (document.userId !== userId){
+        if (document.userId !== userId) {
             throw new Error("Unauthorized")
         }
 
@@ -273,13 +273,13 @@ export const update = mutation({
     handler: async (ctx, args) => {
         const identity = await ctx.auth.getUserIdentity();
 
-        if(!identity) {
+        if (!identity) {
             throw new Error("Unauthenticated");
         }
 
         const userId = identity.subject;
 
-        const { id, ...rest} = args;
+        const { id, ...rest } = args;
 
         const existingDocument = await ctx.db.get(args.id);
 
@@ -296,4 +296,32 @@ export const update = mutation({
         });
         return document;
     },
+});
+
+export const removeCoverImage = mutation({
+    args: { id: v.id("documents") },
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+
+        if (!identity) {
+            throw new Error("Unauthenticated");
+        }
+        const userId = identity.subject;
+
+        const existingDocument = await ctx.db.get(args.id);
+
+        if (!existingDocument) {
+            throw new Error("Not found");
+        }
+
+        if (existingDocument.userId !== userId) {
+            throw new Error("Unauthorized");
+        }
+
+        const document = await ctx.db.patch(args.id, {
+            coverImage: undefined,
+        });
+
+        return document;
+    }
 });
