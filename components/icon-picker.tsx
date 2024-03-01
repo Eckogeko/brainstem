@@ -1,15 +1,14 @@
 "use client"
 
-import EmojiPicker, {Theme} from "emoji-picker-react";
 import { useTheme } from "next-themes";
+import data from '@emoji-mart/data'
+import Picker from '@emoji-mart/react'
 
 import { 
     Popover,
     PopoverContent,
     PopoverTrigger
  } from "@/components/ui/popover"
-import { use } from "react";
-import { resolve } from "path";
 
  interface IconPickerProps {
     onChange: (icon: string) => void;
@@ -26,8 +25,8 @@ export const IconPicker =({
     const currentTheme = (resolvedTheme || "light") as keyof typeof themeMap
 
     const themeMap = {
-        "dark": Theme.DARK,
-        "light": Theme.LIGHT
+        "dark": "dark",
+        "light": "light"
     };
 
     const theme = themeMap[currentTheme];
@@ -38,12 +37,11 @@ export const IconPicker =({
                 {children}
             </PopoverTrigger>
             <PopoverContent className="p-0 w-full border-none shadow-none">
-                <EmojiPicker 
-                    height={350}
+                <Picker
                     theme={theme}
-                    onEmojiClick={(data) => onChange(data.emoji)}
+                    data={data}
+                    onEmojiClick={onChange}
                 />
-
             </PopoverContent>
         </Popover>
     )
